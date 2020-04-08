@@ -10,23 +10,19 @@ BOLD = '\033[1m'
 ENDC = '\033[0m'
 
 def main():
-    #isFit = os.path.exists("./polFit_recolevel_v29star_2ASR/Fits/")
-    #if isFit:
-    #    print("There exists a Fits/ folder already! Please remove.")
-    #    sys.exit()
-    #runFit = subprocess.call("trex-fitter wf ./config/polFit_recolevel_v29star_2ASR.config",shell=True)
-    #subCondor = subprocess.call('condor_submit job_Condor.sub',shell=True)
+    isFit = os.path.exists("./polFit_recolevel_v29star_2ASR/Fits/")
+    if isFit:
+        print("There exists a Fits/ folder already! Please remove.")
+        sys.exit()
+    runFit = subprocess.call("trex-fitter wf ./config/polFit_recolevel_v29star_2ASR.config",shell=True)
+    subCondor = subprocess.call('condor_submit job_Condor.sub',shell=True)
     logfiles = glob.glob('./condoroutputs/log/*.log')
     latestLog = max(logfiles, key=os.path.getctime)
     print(BOLD + "Found the last created log file: "+latestLog + ENDC)
     checkCndr = subprocess.Popen("condor_wait "+latestLog, shell=True, stdout=subprocess.PIPE)
-    print(BLUE + "Now waiting for the condor jobs to finish...")
-    poll = checkCndr.poll()
-    while poll == None:
-        print("...")
-        time.sleep(10)
-    #checkCndr.wait()
-    print("DONE." +ENDC)
+    print(BLUE + "Now waiting for the condor jobs to finish..."+ ENDC)
+    checkCndr.wait()
+
     pltRnk = subprocess.call('trex-fitter r ./config/polFit_recolevel_v29star_2ASR.config Ranking=plot', shell=True)
     NPFile = open('./polFit_recolevel_v29star_2ASR/Fits/NPRanking.txt','r')
     NPs = NPFile.readlines()
